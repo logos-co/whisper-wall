@@ -1,0 +1,20 @@
+[package]
+name = "whisper_wall-examples"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "generate_idl"
+path = "src/bin/generate_idl.rs"
+
+[[bin]]
+name = "whisper_wall_cli"
+path = "src/bin/whisper_wall_cli.rs"
+
+[dependencies]
+spel-framework = { git = "https://github.com/logos-co/spel.git", rev = "refs/heads/main" }
+nssa_core = { git = "https://github.com/logos-blockchain/logos-execution-zone.git", tag = "v0.2.0-rc1" }
+spel = { git = "https://github.com/logos-co/spel.git", rev = "refs/heads/main" }
+whisper_wall_core = { path = "../whisper_wall_core" }
+serde_json = "1.0"
+tokio = { version = "1.28.2", features = ["net", "rt-multi-thread", "sync", "macros"] }

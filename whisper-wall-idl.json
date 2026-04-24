@@ -1,0 +1,185 @@
+{
+  "version": "0.1.0",
+  "name": "whisper_wall",
+  "instructions": [
+    {
+      "name": "initialize",
+      "accounts": [
+        {
+          "name": "state",
+          "writable": true,
+          "signer": false,
+          "init": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": "wall"
+              }
+            ]
+          }
+        },
+        {
+          "name": "admin",
+          "writable": false,
+          "signer": true,
+          "init": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "whisper",
+      "accounts": [
+        {
+          "name": "state",
+          "writable": true,
+          "signer": false,
+          "init": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": "wall"
+              }
+            ]
+          }
+        },
+        {
+          "name": "signer",
+          "writable": false,
+          "signer": true,
+          "init": false
+        }
+      ],
+      "args": [
+        {
+          "name": "msg",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "overwrite",
+      "accounts": [
+        {
+          "name": "state",
+          "writable": true,
+          "signer": false,
+          "init": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": "wall"
+              }
+            ]
+          }
+        },
+        {
+          "name": "signer",
+          "writable": false,
+          "signer": true,
+          "init": false
+        }
+      ],
+      "args": [
+        {
+          "name": "msg",
+          "type": "string"
+        },
+        {
+          "name": "tip",
+          "type": "u128"
+        }
+      ]
+    },
+    {
+      "name": "drain_jar",
+      "accounts": [
+        {
+          "name": "state",
+          "writable": true,
+          "signer": false,
+          "init": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": "wall"
+              }
+            ]
+          }
+        },
+        {
+          "name": "signer",
+          "writable": false,
+          "signer": true,
+          "init": false
+        },
+        {
+          "name": "recipient",
+          "writable": true,
+          "signer": false,
+          "init": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "reveal",
+      "accounts": [
+        {
+          "name": "state",
+          "writable": false,
+          "signer": false,
+          "init": false,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": "wall"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "WhisperState",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "latest_whisper",
+            "type": "string"
+          },
+          {
+            "name": "last_tip",
+            "type": "u128"
+          },
+          {
+            "name": "whisper_count",
+            "type": "u64"
+          },
+          {
+            "name": "total_tips",
+            "type": "u128"
+          }
+        ]
+      }
+    }
+  ]
+}
