@@ -115,7 +115,7 @@ Rectangle {
                     text: backend.wallExists ? "Current whisper" : "Wall not initialized"
                     color: root.colMuted
                     font.pixelSize: 11
-                    font.uppercase: true
+                    font.capitalization: Font.AllUppercase
                     font.letterSpacing: 1
                 }
 

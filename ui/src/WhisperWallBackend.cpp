@@ -3,6 +3,7 @@
 #include <QCoreApplication>
 #include <QFuture>
 #include <QJsonDocument>
+#include <QThreadPool>
 #include <QJsonObject>
 #include <QtConcurrent/QtConcurrent>
 
@@ -140,8 +141,8 @@ void WhisperWallBackend::drainJar(const QString& adminAccountId, const QString& 
 void WhisperWallBackend::refreshState() {
     if (m_programIdHex.isEmpty() || m_busy) return;
     QJsonObject args = baseArgs();
-    // Run fetch off-thread but don't set busy — it's a background poll.
-    QtConcurrent::run([this, args]() {
+    // Fire-and-forget background poll — don't hold the QFuture.
+    QThreadPool::globalInstance()->start([this, args]() {
         QString result = callFfiRaw(whisper_wall_fetch_state_json, args);
         QMetaObject::invokeMethod(this, [this, result]() {
             QJsonObject obj = QJsonDocument::fromJson(result.toUtf8()).object();
