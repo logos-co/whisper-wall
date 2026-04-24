@@ -87,16 +87,37 @@ if [[ "${SKIP_PRIVATE:-0}" == "1" ]]; then
     exit 0
 fi
 
-say "7. Private whisper — anonymous bidding"
-DAVE=$("$WALLET" account new private 2>&1 | sed -n 's/.*Private\/\([A-Za-z0-9]*\).*/\1/p')
-note "DAVE=Private/$DAVE (created — but needs funding + auth-transfer init)"
-note "MANUAL: fund Private/$DAVE via 'wallet auth-transfer send --variable-privacy …' from a pre-funded account."
-note "MANUAL: then 'wallet auth-transfer init --account-id Private/$DAVE' and 'wallet account sync-private'."
-note "Script skips the fund/init dance because it requires a pre-funded private account; see README."
+say "7. Private overwrite — anonymous bidding"
 
-# The actual private overwrite once funded:
-# "$SPEL" overwrite --signer "Private/$DAVE" --msg "ghost" --tip 500
-# "$SPEL" inspect "$WALL" --type WhisperState
-# # Observer sees: new latest_whisper, new last_tip — but NOT which Private/ account paid.
+# Use the sequencer-preconfigured Private/ account (pre-funded with 10000).
+PRIV=$("$WALLET" account list 2>&1 | sed -n 's/^Preconfigured Private\/\([A-Za-z0-9]*\).*/\1/p' | head -1)
+note "PRIV=Private/$PRIV (preconfigured, pre-funded)"
+
+# Locate the auth-transfer binary in the LEZ build artifacts.
+AUTH_BIN=$(find "$HOME/.cargo/git/checkouts" \
+  -path "*logos-execution-zone*artifacts/program_methods/authenticated_transfer.bin" \
+  2>/dev/null | head -1)
+if [[ -z "$AUTH_BIN" ]]; then
+    note "⚠ Couldn't locate auth-transfer binary — skipping private run."
+    note "  Build any SPEL program that depends on nssa once, then retry."
+    exit 0
+fi
+note "AUTH_BIN=$AUTH_BIN"
+
+# Refresh private-account membership proofs.
+"$WALLET" account sync-private > /dev/null
+
+# Private TX requires declaring chained-call targets via --bin-<name>.
+# Without --bin-auth-transfer, the proof builder panics (see NOTES.md).
+BEFORE=$("$WALLET" account get --account-id "Private/$PRIV" 2>&1 | grep -oP '"balance":\K[0-9]+' | head -1)
+"$SPEL" --bin-auth-transfer "$AUTH_BIN" -- \
+  overwrite --signer "Private/$PRIV" --msg "ghost" --tip 600
+"$WALLET" account sync-private > /dev/null
+AFTER=$("$WALLET" account get --account-id "Private/$PRIV" 2>&1 | grep -oP '"balance":\K[0-9]+' | head -1)
+note "Private balance: $BEFORE → $AFTER (expected delta −600; privacy hides this from observers)"
+
+"$SPEL" inspect "$WALL" --type WhisperState
+note "Wall state is public (PDA) — observer sees latest_whisper='ghost', last_tip=600."
+note "Observer CANNOT see which Private/ account paid — only an unlinkable nullifier."
 
 say "Demo complete."

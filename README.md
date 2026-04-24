@@ -88,26 +88,40 @@ wallet account get "$ALICE_ID"         # alice's balance up by 100
 
 ## Demo — private run
 
-The private story works for plain (non-payment) instructions. Paid `overwrite` currently fails end-to-end when combined with a `Private/` signer — see "Private + ChainedCall" in `NOTES.md`.
+Private TX proof generation needs every chained-call target declared as a build dependency via `--bin-<name> <path>`. For `overwrite` that means the `auth-transfer` binary, which ships inside the `nssa` crate's build artifacts:
 
 ```bash
-wallet account sync-private           # MANDATORY periodically — silent failure otherwise
+wallet account sync-private   # run periodically — silent failure otherwise if you skip
 
-# Confirmed working: private signer on a non-payment instruction.
-# (Uses the sequencer-provided preconfigured Private/ account which is pre-funded.)
-spel reveal                           # no-op read; confirms the private path runs
-spel whisper --signer Private/5ya25h4Xc9GAmrGB2WrTEnEWtQKJwRwQx3Xfo2tucNcE --msg "anon"
+AUTH_BIN=$(find ~/.cargo/git/checkouts/logos-execution-zone-* \
+  -path "*artifacts/program_methods/authenticated_transfer.bin" | head -1)
 
-# Known-failing: private + ChainedCall. The proof builder panics with
-# `InvalidProgramBehavior` before the TX is submitted. Tracked in NOTES.md.
-# spel overwrite --signer Private/<ID> --msg "ghost" --tip 500
+# Use the preconfigured Private/ account (pre-funded with 10000 native tokens)
+PRIV=Private/5ya25h4Xc9GAmrGB2WrTEnEWtQKJwRwQx3Xfo2tucNcE
+
+spel --bin-auth-transfer "$AUTH_BIN" -- \
+  overwrite --signer "$PRIV" --msg "ghost" --tip 600
+# → "📤 Privacy-preserving transaction submitted!" + confirmed
+
+spel inspect "$WALL" --type WhisperState
+# { "latest_whisper": "ghost", "last_tip": "600", … }
+
+wallet account sync-private   # refresh the private-account view
+wallet account get --account-id "$PRIV"
+# balance went from 10000 → 9400 — real on-chain debit via the private path
 ```
 
-What changes with `Private/` for the instructions that work:
+What observers see:
 
-- The sequencer sees a `PrivacyPreservingTransaction` — ZK proof + encrypted states + commitments/nullifiers.
-- Observers can read the public wall PDA (so they see `latest_whisper`, `last_tip`, balance delta).
-- Observers **cannot** see which `Private/` account signed the call — only the nullifier, which doesn't identify the account.
+- Wall PDA (public): new `latest_whisper`, new `last_tip`, balance went up by the tip.
+- Sequencer log: a `PrivacyPreservingTransaction` — ZK proof, encrypted account states, commitments, nullifiers.
+
+What observers *don't* see:
+
+- Which `Private/` account signed the call — only an unlinkable nullifier.
+- The private account's balance or `nonce` (the private-account nonce is randomized — a 16-byte u128 — to prevent linking, vs. public accounts' monotonically incrementing 0, 1, 2, …).
+
+Without `--bin-auth-transfer`, the private path panics at `wallet/src/lib.rs:402` with `InvalidProgramBehavior` because the circuit can't find auth-transfer in its dependency map. The public path is more forgiving and works without the flag. See [NOTES.md](NOTES.md) for the full mechanism.
 
 ## Caveats
 

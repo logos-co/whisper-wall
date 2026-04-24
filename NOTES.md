@@ -36,33 +36,26 @@ Today `spel_framework_core/src/lib.rs:20-21` only re-exports from `nssa_core`, n
 
 A thin JS client over `spel`'s JSON output (`--dry-run=json`, `spel inspect --type WhisperState`) would make the "anonymous bidding war" demo much more compelling. The `spel-client-gen` crate produces typed FFI bindings — could generate a WASM client too.
 
-## `overwrite` with a `Private/` signer panics in the wallet
+## `--bin-<name>` is required for any chained-call target under private TX
 
-Calling `spel overwrite --signer Private/… --msg … --tip N` fails with:
+Private TX proof generation in `nssa::privacy_preserving_transaction::circuit::execute_and_prove` looks up each emitted `ChainedCall.program_id` in a `dependencies` map built from `ProgramWithDependencies`. If a ChainedCall's target isn't in that map, the builder returns `NssaError::InvalidProgramBehavior` (see `nssa/src/privacy_preserving_transaction/circuit.rs:118` at LEZ `v0.2.0-rc1` / 35d8df0).
 
-```
-thread 'main' panicked at wallet/src/lib.rs:402:10:
-called `Result::unwrap()` on an `Err` value: InvalidProgramBehavior
-```
+`spel-cli/src/tx.rs:352-361` builds the dependency map from the `--bin-<NAME> <FILE>` flags. For `overwrite` (which fires a ChainedCall to `auth-transfer`), we therefore need:
 
-The same handler works fine with a `Public/` signer, and **other private-path instructions work**:
-
-- `reveal` with default signer: ✅ private TX confirmed.
-- `whisper --signer Private/…` on a non-empty wall: ✅ the program runs under privacy proof generation and surfaces our `SpelError::Unauthorized` as expected (the private path is fine; our own validation correctly rejected the transition).
-
-So the failure isn't the privacy framing itself — it's specifically **private TX combined with a `ChainedCall` to `auth-transfer`**. Proof generation in the wallet's `PrivacyPreservingTransaction` builder rejects something about that composition. Candidates (not yet validated):
-
-- The `ChainedCall.pre_states` we construct include a `Private/` sender; maybe auth-transfer's private path wants the account passed through a different channel.
-- The ChainedCall's `instruction_data` encoding may differ between public and private contexts.
-- `risc0_to_vec(&tip)` may need wrapping inside a privacy-preserving instruction envelope when called from a private TX.
-
-Repro:
 ```bash
-spel overwrite --signer Private/5ya25h4Xc9GAmrGB2WrTEnEWtQKJwRwQx3Xfo2tucNcE \
-  --msg "ghost" --tip 500
+spel --bin-auth-transfer /path/to/artifacts/program_methods/authenticated_transfer.bin \
+  -- overwrite --signer Private/… --msg … --tip N
 ```
 
-Worth filing as an issue against `logos-co/spel` (or `logos-blockchain/logos-execution-zone`) once we've confirmed it's not our ChainedCall being misbuilt. The easy first check: does `wallet auth-transfer send --from Private/… --to <wall> --amount N` work on its own? If yes, the problem is in how our SPEL program composes the ChainedCall for the private case.
+Without the `--bin-auth-transfer` flag, a `Public/` signer still succeeds (the public path doesn't build a per-TX dependency map the same way), but the private path panics at `wallet/src/lib.rs:402` with `InvalidProgramBehavior`. The same flag works for `Public/` too — it's just silently ignored on the public path.
+
+The auth-transfer binary ships inside `nssa`'s build artifacts:
+
+```
+~/.cargo/git/checkouts/logos-execution-zone-<hash>/<rev>/artifacts/program_methods/authenticated_transfer.bin
+```
+
+Nicer UX follow-up: `spel` could auto-discover well-known chained targets (`auth-transfer`, `token`, `amm`, `ata`) from the IDL or from a `spel.toml` `[chained_deps]` section, so users don't need to know where the binary lives. Currently the user must pass the explicit file path.
 
 ## PDA-as-sender ChainedCall pattern (deferred)
 
