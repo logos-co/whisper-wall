@@ -1,0 +1,15 @@
+{
+  "author": "Logos / SPEL demo",
+  "category": "demo",
+  "dependencies": [],
+  "description": "Anonymous bidding wall — free whisper, paid overwrite, private TX support",
+  "icon": "",
+  "main": {
+    "linux-amd64-dev": "libwhisper_wall_plugin.so",
+    "linux-x86_64-dev": "libwhisper_wall_plugin.so"
+  },
+  "manifestVersion": "0.1.0",
+  "name": "whisper_wall",
+  "type": "ui",
+  "version": "0.1.0"
+}

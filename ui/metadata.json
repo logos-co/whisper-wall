@@ -2,7 +2,7 @@
   "name": "whisper_wall",
   "version": "0.1.0",
   "description": "Anonymous bidding wall — free whisper, paid overwrite, private TX support",
-  "type": "ui_qml",
+  "type": "ui",
   "category": "demo",
   "main": "whisper_wall_plugin",
   "view": "qml/Main.qml",

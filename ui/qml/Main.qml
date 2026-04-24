@@ -61,6 +61,12 @@ Rectangle {
         target: backend
         function onTxSuccess(operation, txHash) {
             toast.show("✓ " + operation + " — " + txHash.substring(0, 12) + "…", true)
+            if (operation === "whisper" || operation === "overwrite") {
+                writeMsg.text = ""
+                // Bump tip by 1 for the next overwrite
+                var next = parseInt(backend.lastTip) + 1
+                writeTip.text = isNaN(next) ? "1" : next.toString()
+            }
         }
         function onTxError(operation, error) {
             toast.show("✗ " + error, false)
@@ -169,11 +175,11 @@ Rectangle {
                 anchors { fill: parent; margins: 16 }
                 spacing: 12
 
-                // Tab selector: Whisper / Overwrite / Admin
+                // Tab selector: Write / Admin
                 RowLayout {
                     spacing: 8
                     Repeater {
-                        model: ["Whisper", "Overwrite", "Admin"]
+                        model: ["Write", "Admin"]
                         delegate: Rectangle {
                             width: tabLabel.implicitWidth + 20
                             height: 30
@@ -203,52 +209,41 @@ Rectangle {
                     Layout.fillWidth: true
                     currentIndex: 0
 
-                    // ── Whisper (free, wall must be empty) ────────────────────
+                    // ── Write (whisper when empty, overwrite when occupied) ────
                     ColumnLayout {
                         spacing: 10
+
                         Label {
                             text: backend.latestWhisper === ""
-                                ? "Wall is empty — be the first to whisper."
-                                : "Wall already has a message. Use Overwrite to replace it."
+                                ? "Wall is empty — be the first to whisper (free)."
+                                : "Tip must exceed " + backend.lastTip + " to overwrite."
                             color: root.colMuted
                             font.pixelSize: 12
                             wrapMode: Text.WordWrap
                             Layout.fillWidth: true
                         }
-                        WwTextField { id: whisperSigner;  placeholderText: "Your account ID (Public/...)" }
-                        WwTextField { id: whisperMsg;     placeholderText: "Your whisper…" }
-                        WwButton {
-                            text: "Whisper"
-                            accent: true
-                            enabled: !backend.busy && whisperSigner.text !== "" && whisperMsg.text !== "" && backend.latestWhisper === ""
-                            onClicked: backend.whisper(whisperSigner.text.trim(), whisperMsg.text.trim())
-                        }
-                    }
 
-                    // ── Overwrite (paid, tip must exceed last_tip) ────────────
-                    ColumnLayout {
-                        spacing: 10
-                        Label {
-                            text: "Tip must exceed " + backend.lastTip + " to overwrite."
-                            color: root.colMuted
-                            font.pixelSize: 12
-                            Layout.fillWidth: true
-                        }
-                        WwTextField { id: overwriteSigner; placeholderText: "Your account ID (Public/... or Private/...)" }
-                        WwTextField { id: overwriteMsg;    placeholderText: "New message…" }
+                        WwTextField { id: writeSigner; placeholderText: "Your account ID (Public/... or Private/...)" }
+                        WwTextField { id: writeMsg;    placeholderText: "Your message…" }
+
                         WwTextField {
-                            id: overwriteTip
+                            id: writeTip
+                            visible: backend.latestWhisper !== ""
                             placeholderText: "Tip amount (tokens)"
                             inputMethodHints: Qt.ImhDigitsOnly
                         }
+
                         WwButton {
-                            text: "Overwrite"
+                            text: backend.latestWhisper === "" ? "Whisper" : "Overwrite"
                             accent: true
-                            enabled: !backend.busy && overwriteSigner.text !== "" && overwriteMsg.text !== "" && overwriteTip.text !== ""
-                            onClicked: backend.overwrite(
-                                overwriteSigner.text.trim(),
-                                overwriteMsg.text.trim(),
-                                overwriteTip.text.trim())
+                            enabled: !backend.busy && writeSigner.text !== "" && writeMsg.text !== ""
+                                     && (backend.latestWhisper === "" || writeTip.text !== "")
+                            onClicked: {
+                                if (backend.latestWhisper === "")
+                                    backend.whisper(writeSigner.text.trim(), writeMsg.text.trim())
+                                else
+                                    backend.overwrite(writeSigner.text.trim(), writeMsg.text.trim(), writeTip.text.trim())
+                            }
                         }
                     }
 
