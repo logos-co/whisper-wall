@@ -131,6 +131,28 @@ Without `--bin-auth-transfer`, the private path panics at `wallet/src/lib.rs:402
 4. **Private TX needs the program binary, not `--program <HEX>`**. `spel-cli/src/tx.rs` silently bails otherwise. With a `spel.toml` (which `spel init` scaffolds) this is automatic — the `binary` field supplies the path.
 5. **`AUTHENTICATED_TRANSFER_ID` is hardcoded** in the guest file for LEZ `v0.2.0-rc1`. If you bump LEZ, regenerate from the new `nssa` build output. See `NOTES.md`.
 
+## Basecamp UI plugin
+
+WhisperWall ships a Qt/QML Basecamp plugin in `ui/`. Install once, then launch:
+
+```bash
+# 1. Build and install the plugin (C++ + Rust FFI)
+cd ui && cmake --build build && cmake --install build && cd ..
+
+# 2. Launch Basecamp with all env vars pre-configured
+./scripts/launch-basecamp.sh
+```
+
+The launch script auto-extracts the program ID from the local binary via `spel inspect`, so you don't need to copy-paste it after each `make build`. It also sets `QML_PATH` so QML edits take effect without recompiling the `.so`.
+
+Environment overrides:
+
+```bash
+NSSA_WALLET_HOME_DIR=/path/to/wallet \
+LOGOS_WORKSPACE_DIR=/path/to/logos-workspace \
+./scripts/launch-basecamp.sh
+```
+
 ## What to try next
 
 - Build a minimal web UI over `spel --dry-run=json` and `spel inspect` to watch the wall update in real time.
@@ -144,6 +166,7 @@ Without `--bin-auth-transfer`, the private path panics at `wallet/src/lib.rs:402
 - `Makefile` — scaffold default with the `idl` target swapped to `spel generate-idl`.
 - `spel.toml` — lets you run `spel <instruction>` without flags.
 - `scripts/demo.sh` — runnable public + private walkthrough.
+- `scripts/launch-basecamp.sh` — one-shot Basecamp launcher (auto-extracts program ID).
 - `NOTES.md` — follow-ups tied to upstream fixes.
 
 ## License
