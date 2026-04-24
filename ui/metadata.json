@@ -1,0 +1,20 @@
+{
+  "name": "whisper_wall",
+  "version": "0.1.0",
+  "description": "Anonymous bidding wall — free whisper, paid overwrite, private TX support",
+  "type": "ui_qml",
+  "category": "demo",
+  "main": "whisper_wall_plugin",
+  "view": "qml/Main.qml",
+  "nix": {
+    "packages": {
+      "runtime": ["qt6.qtdeclarative", "qt6.qtwayland"]
+    },
+    "external_libraries": [
+      {
+        "name": "whisper_wall_ffi",
+        "vendor_path": "lib"
+      }
+    ]
+  }
+}
