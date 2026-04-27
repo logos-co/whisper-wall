@@ -108,7 +108,7 @@ spel initialize --admin Public/<your-admin-account-id>
 Verify the wall PDA exists:
 
 ```bash
-WALL=$(spel pda wall_v2)
+WALL=$(spel pda state)
 spel inspect "$WALL" --type WhisperState
 # { "latest_whisper": "", "last_tip": "0", … }
 ```

@@ -142,7 +142,7 @@ Assumes `NSSA_WALLET_HOME_DIR` is set and accounts are funded + auth-transfer-in
 
 ```bash
 spel initialize --admin $ALICE
-WALL=$(spel pda wall)
+WALL=$(spel pda state)
 spel inspect "$WALL" --type WhisperState
 # { "admin": "...", "latest_whisper": "", "last_tip": "0", "whisper_count": "0", "total_tips": "0" }
 
