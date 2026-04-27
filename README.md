@@ -71,26 +71,16 @@ To stop the sequencer later: `logos-scaffold localnet stop`.
 
 ### Funding participant accounts
 
-The scaffold's deployer account starts with tokens. Fund fresh test accounts from it:
+Create accounts and top them up with the pinata faucet. `lgs wallet topup` handles both `auth-transfer init` and the faucet claim in one step:
 
 ```bash
 ALICE=$(wallet account new public | grep -oP '(?<=Public/)\S+')
 BOB=$(wallet account new public   | grep -oP '(?<=Public/)\S+')
 CAROL=$(wallet account new public | grep -oP '(?<=Public/)\S+')
 
-wallet account fund --account-id "Public/$ALICE" --amount 10000
-wallet account fund --account-id "Public/$BOB"   --amount 10000
-wallet account fund --account-id "Public/$CAROL" --amount 10000
-```
-
-### Auth-transfer prerequisite for `overwrite`
-
-Any account that will call `overwrite` (which moves tokens via `auth-transfer`) must be registered with auth-transfer first:
-
-```bash
-wallet auth-transfer init --account-id "Public/$ALICE"
-wallet auth-transfer init --account-id "Public/$BOB"
-wallet auth-transfer init --account-id "Public/$CAROL"
+lgs wallet topup "Public/$ALICE"
+lgs wallet topup "Public/$BOB"
+lgs wallet topup "Public/$CAROL"
 ```
 
 ## Build
