@@ -234,6 +234,34 @@ LOGOS_WORKSPACE_DIR=/path/to/logos-workspace \
 ./scripts/launch-basecamp.sh
 ```
 
+### Loading the .lgx in Basecamp
+
+1. **Build the lgx** (requires nix):
+   ```bash
+   nix build ./ui#lgx
+   # → result/whisper-wall-plugin.lgx
+   ```
+
+2. **Get the program ID hex** from the compiled binary:
+   ```bash
+   spel inspect methods/guest/target/riscv32im-risc0-zkvm-elf/docker/whisper_wall.bin \
+     | grep "ImageID (hex bytes)"
+   # → ImageID (hex bytes): ed7af506...  (64 chars)
+   ```
+
+3. **Launch Basecamp with the required env vars**, then load the lgx from Basecamp's plugin manager:
+   ```bash
+   NSSA_WALLET_HOME_DIR=/absolute/path/to/wallet \
+   NSSA_SEQUENCER_URL=http://<sequencer-ip>:3040 \
+   WHISPER_WALL_PROGRAM_ID_HEX=<64-char-hex> \
+     /path/to/logos-basecamp.AppImage
+   ```
+   Then open the plugin manager in Basecamp and select `whisper-wall-plugin.lgx`.
+
+All three env vars are required — the plugin will show a blank status bar error if any are missing or wrong.
+
+> **Workshop shortcut:** the organizer builds the lgx once, shares it alongside the `WHISPER_WALL_PROGRAM_ID_HEX` and `NSSA_SEQUENCER_URL`. Participants only need the AppImage, the lgx file, and those two values.
+
 ## What to try next
 
 - Build a minimal web UI over `spel --dry-run=json` and `spel inspect` to watch the wall update in real time.
