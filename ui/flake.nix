@@ -2,16 +2,22 @@
   description = "WhisperWall Basecamp UI plugin — Qt6 C++ + Rust FFI";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    # Follow logos-workspace's pinned nixpkgs so Qt versions match Basecamp.
+    logos-nix.url = "github:logos-co/logos-nix";
+    nixpkgs.follows = "logos-nix/nixpkgs";
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     flake-utils.url = "github:numtide/flake-utils";
-    nix-bundle-lgx.url = "github:logos-co/nix-bundle-lgx";
+    nix-bundle-lgx = {
+      url = "github:logos-co/nix-bundle-lgx";
+      inputs.logos-nix.follows = "logos-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, rust-overlay, flake-utils, nix-bundle-lgx }:
+  outputs = { self, nixpkgs, logos-nix, rust-overlay, flake-utils, nix-bundle-lgx }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
