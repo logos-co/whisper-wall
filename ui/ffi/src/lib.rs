@@ -100,7 +100,7 @@ fn init_wallet(v: &Value) -> Result<WalletCore, String> {
 fn compute_state_pda(program_id: &ProgramId) -> AccountId {
     let seed = nssa_core::program::PdaSeed::new({
         let mut b = [0u8; 32];
-        b[..4].copy_from_slice(b"wall");
+        b[..7].copy_from_slice(b"wall_v2");
         b
     });
     AccountId::from((program_id, &seed))
