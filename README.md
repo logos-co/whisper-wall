@@ -129,15 +129,20 @@ Without `--bin-auth-transfer`, the private path panics at `wallet/src/lib.rs:402
 
 ## Basecamp UI plugin
 
-WhisperWall ships a Qt/QML Basecamp plugin in `ui/`. Install once, then launch:
+WhisperWall ships a Qt/QML Basecamp plugin in `ui/`. Build with nix — no manual cmake or cargo steps needed:
 
 ```bash
-# 1. Build and install the plugin (C++ + Rust FFI)
-cd ui && cmake --build build && cmake --install build && cd ..
+# Build and install the plugin (fully hermetic — circuits, FFI, Qt all in one)
+nix run ./ui#install
 
-# 2. Launch Basecamp with all env vars pre-configured
+# Launch Basecamp with all env vars pre-configured
 ./scripts/launch-basecamp.sh
 ```
+
+The nix flake at `ui/flake.nix` builds three outputs:
+- `nix build ./ui` — default: full Qt plugin package
+- `nix build ./ui#ffi` — Rust FFI cdylib only (faster iteration on the FFI layer)
+- `nix run ./ui#install` — build + copy to `~/.local/share/Logos/LogosBasecampDev/plugins/whisper_wall/`
 
 The launch script auto-extracts the program ID from the local binary via `spel inspect`, so you don't need to copy-paste it after each `make build`. It also sets `QML_PATH` so QML edits take effect without recompiling the `.so`.
 

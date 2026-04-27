@@ -14,7 +14,7 @@
             "seeds": [
               {
                 "kind": "const",
-                "value": "wall"
+                "value": "wall_v2"
               }
             ]
           }
@@ -40,7 +40,7 @@
             "seeds": [
               {
                 "kind": "const",
-                "value": "wall"
+                "value": "wall_v2"
               }
             ]
           }
@@ -71,7 +71,7 @@
             "seeds": [
               {
                 "kind": "const",
-                "value": "wall"
+                "value": "wall_v2"
               }
             ]
           }
@@ -106,7 +106,7 @@
             "seeds": [
               {
                 "kind": "const",
-                "value": "wall"
+                "value": "wall_v2"
               }
             ]
           }
@@ -138,7 +138,7 @@
             "seeds": [
               {
                 "kind": "const",
-                "value": "wall"
+                "value": "wall_v2"
               }
             ]
           }
