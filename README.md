@@ -241,6 +241,10 @@ LOGOS_WORKSPACE_DIR=/path/to/logos-workspace \
 - Point the scaffold at a future LEZ release and regenerate the `AUTHENTICATED_TRANSFER_ID` constant — see `NOTES.md`.
 - Explore private-TX with `wallet auth-transfer send --variable-privacy` so the tip *amount* is hidden too.
 
+## Running a shared sequencer for a workshop
+
+See **[docs/public-sequencer.md](docs/public-sequencer.md)** for a step-by-step guide to deploying the sequencer on a public VM so participants can connect without running their own node.
+
 ## Files
 
 - `methods/guest/src/bin/whisper_wall.rs` — the program (5 handlers + state type).
