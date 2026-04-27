@@ -1,8 +1,7 @@
 //! C FFI for the whisper_wall SPEL program.
 //!
-//! Based on spel-client-gen output but with two fixes applied:
-//!   - SPEL #142: `string` → `String` in instruction enum variants
-//!   - SPEL #143: added `whisper_wall_fetch_state_json()` for reading wall state
+//! Based on spel-client-gen output with `whisper_wall_fetch_state_json()` added
+//! manually (spel-client-gen issue #143 — fetch FFI not yet generated).
 //!
 //! Every call accepts a JSON string with at least:
 //!   { "wallet_path": "...", "sequencer_url": "...", "program_id_hex": "<64 hex chars>" }
@@ -39,8 +38,8 @@ struct WhisperState {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum WhisperWallInstruction {
     Initialize,
-    Whisper { msg: String },           // fix: was `string` (SPEL #142)
-    Overwrite { msg: String, tip: u128 }, // fix: was `string`
+    Whisper { msg: String },
+    Overwrite { msg: String, tip: u128 },
     DrainJar,
     Reveal,
 }

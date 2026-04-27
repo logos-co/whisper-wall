@@ -15,11 +15,8 @@ Called with ordinary `Public/` accounts it's a transparent bidding board. Called
 ## Build
 
 ```bash
-# SPEL issue #140 workaround: pin ruint before the RISC-Zero docker build
-cargo update -p ruint --precise 1.17.0 --manifest-path methods/guest/Cargo.toml
-
 make build        # RISC Zero zkVM guest compile — 5–15 min first time
-make idl          # spel generate-idl (NOT the proc-macro path; see issue #141)
+make idl          # spel generate-idl
 ```
 
 Expected IDL shape (`whisper-wall-idl.json`):
@@ -125,9 +122,8 @@ Without `--bin-auth-transfer`, the private path panics at `wallet/src/lib.rs:402
 
 ## Caveats
 
-1. **[SPEL #140](https://github.com/logos-co/spel/issues/140)** — the scaffold default `--spel-tag v0.2.0-rc.1` pins a stale `nssa_core` rev that doesn't match the scaffold's own pin. We scaffolded with `spel init --spel-rev refs/heads/main`. If you re-scaffold, pass either `--spel-rev refs/heads/main` or `--spel-tag v0.2.0-rc.3` (not `rc.1`, not `v0.2.0` GA).
-2. **[SPEL #140](https://github.com/logos-co/spel/issues/140)** — `ruint@1.18` requires rustc 1.90, but the RISC-Zero docker image ships rustc 1.88. Run `cargo update -p ruint --precise 1.17.0 --manifest-path methods/guest/Cargo.toml` before `make build`.
-3. **[SPEL #141](https://github.com/logos-co/spel/issues/141)** — the `generate_idl!` proc macro doesn't collect `#[account_type]` markers; only `spel generate-idl` does. The `Makefile` `idl` target uses the CLI for this reason. Without it, `spel inspect --type WhisperState` would fail with "type not found."
+1. ~~**[SPEL #140](https://github.com/logos-co/spel/issues/140)** — scaffold default pinned a stale `nssa_core` rev.~~ Fixed in spel main (`--spel-tag v0.2.0-rc.3`). `ruint = "=1.17.0"` is now pinned directly in `methods/guest/Cargo.toml`.
+2. ~~**[SPEL #141](https://github.com/logos-co/spel/issues/141)** — `generate_idl!` proc macro didn't collect `#[account_type]` markers.~~ Fixed in spel main (PR #146). The `Makefile` `idl` target continues to use `spel generate-idl` (both paths now work).
 4. **Private TX needs the program binary, not `--program <HEX>`**. `spel-cli/src/tx.rs` silently bails otherwise. With a `spel.toml` (which `spel init` scaffolds) this is automatic — the `binary` field supplies the path.
 5. **`AUTHENTICATED_TRANSFER_ID` is hardcoded** in the guest file for LEZ `v0.2.0-rc1`. If you bump LEZ, regenerate from the new `nssa` build output. See `NOTES.md`.
 

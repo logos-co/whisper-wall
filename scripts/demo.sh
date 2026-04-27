@@ -22,8 +22,6 @@ note() { printf "  \033[2m%s\033[0m\n" "$*"; }
 # --- 0. Build + IDL (skip if cached) ---
 say "0. Build + IDL"
 if [[ ! -f methods/guest/target/riscv32im-risc0-zkvm-elf/docker/whisper_wall.bin ]]; then
-    note "Pinning ruint for SPEL #140 workaround…"
-    cargo update -p ruint --precise 1.17.0 --manifest-path methods/guest/Cargo.toml
     make build
 fi
 make idl

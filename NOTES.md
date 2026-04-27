@@ -2,19 +2,13 @@
 
 Items to revisit once upstream fixes land. Grouped by trigger.
 
-## When SPEL issue #140 is resolved
+## ~~SPEL issue #140~~ — resolved (spel PR #151)
 
-[logos-co/spel#140](https://github.com/logos-co/spel/issues/140) tracks the stale scaffold default and the `ruint@1.18 / rustc 1.88` clash.
+`ruint = "=1.17.0"` is now pinned directly in `methods/guest/Cargo.toml`. The `cargo update -p ruint` workaround step has been removed from `scripts/demo.sh` and the README. New projects scaffolded with `spel init` also get the pin automatically.
 
-- Drop `cargo update -p ruint --precise 1.17.0 --manifest-path methods/guest/Cargo.toml` from `scripts/demo.sh` and the README's build section.
-- Stop passing `--spel-rev refs/heads/main` to `spel init`; default should just work.
+## ~~SPEL issue #141~~ — resolved (spel PR #146)
 
-## When SPEL issue #141 is resolved
-
-[logos-co/spel#141](https://github.com/logos-co/spel/issues/141) tracks the divergence between `generate_idl!` proc macro and `spel generate-idl` CLI around `#[account_type]` markers.
-
-- Revert the `Makefile` `idl` target back to `cargo run --bin generate_idl > $(IDL_FILE)` (the proc-macro path), which is cheaper than invoking the CLI.
-- The scaffolded `examples/src/bin/generate_idl.rs` will then pick up `#[account_type]` correctly and we can drop the CLI call.
+The `generate_idl!` proc macro now collects `#[account_type]` markers. Both the proc-macro path and `spel generate-idl` CLI now emit `accounts[]` correctly. The `Makefile` `idl` target keeps the CLI call (still valid, no rebuild needed), but the proc-macro path also works now.
 
 ## When SPEL re-exports `nssa::program_methods::AUTHENTICATED_TRANSFER_ID`
 
