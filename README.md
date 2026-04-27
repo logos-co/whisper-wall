@@ -4,6 +4,43 @@ An anonymous message board written as a SPEL program for Logos Execution Zone (L
 
 Called with ordinary `Public/` accounts it's a transparent bidding board. Called with `Private/` accounts it turns into an **anonymous bidding war**: outside observers see the wall's message change and see that tokens moved, but not *who* paid or (with `--variable-privacy`) how much.
 
+## Prerequisites
+
+### logos-scaffold (sequencer + wallet)
+
+```bash
+cargo install --git https://github.com/logos-co/logos-scaffold
+```
+
+This installs `logos-scaffold` and its shorter alias `lgs`. The `wallet` binary is **not** a separate install — `logos-scaffold setup` builds it from the pinned LEZ source. Use `lgs wallet -- <wallet-subcommand>` anywhere this README shows a bare `wallet` command:
+
+```bash
+# these are equivalent:
+wallet account new public
+lgs wallet -- account new public
+```
+
+### spel
+
+```bash
+cargo install --git https://github.com/logos-co/spel --manifest-path spel-cli/Cargo.toml
+```
+
+### RISC Zero toolchain (for `make build`)
+
+```bash
+curl -L https://risczero.com/install | bash
+rzup install
+```
+
+Full instructions: <https://dev.risczero.com/api/zkvm/install>
+
+### Docker or Podman
+
+Required by `cargo risczero build` for hermetic guest compilation.
+
+---
+
 ## What this demonstrates
 
 - **`#[account_type]` + `spel inspect --type`** — typed account-data decoding.
