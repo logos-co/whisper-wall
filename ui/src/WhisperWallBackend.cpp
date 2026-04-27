@@ -28,7 +28,7 @@ static QString callFfiRaw(char* (*fn)(const char*), const QJsonObject& args) {
 
 WhisperWallBackend::WhisperWallBackend(LogosAPI* /*api*/, QObject* parent)
     : QObject(parent)
-    , m_walletPath(qEnvironmentVariable("NSSA_WALLET_HOME_DIR", "/tmp/ww-wallet"))
+    , m_walletPath(qEnvironmentVariable("NSSA_WALLET_HOME_DIR", ".scaffold/wallet"))
     , m_sequencerUrl(qEnvironmentVariable("NSSA_SEQUENCER_URL", "http://127.0.0.1:3040"))
     , m_programIdHex(qEnvironmentVariable("WHISPER_WALL_PROGRAM_ID_HEX"))
     , m_pollTimer(new QTimer(this))

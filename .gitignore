@@ -4,3 +4,4 @@ methods/guest/target/
 .whisper_wall-state
 .whisper_wall-state.tmp
 .scaffold
+scaffold.toml

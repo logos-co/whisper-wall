@@ -46,12 +46,12 @@ echo "WhisperWall Basecamp launcher"
 echo "  Binary:     $PROGRAM_BIN"
 echo "  Program ID: $PROGRAM_ID_HEX"
 echo "  QML dir:    $QML_DIR"
-echo "  Wallet dir: ${NSSA_WALLET_HOME_DIR:-/tmp/ww-wallet}"
+echo "  Wallet dir: ${NSSA_WALLET_HOME_DIR:-$ROOT/.scaffold/wallet}"
 echo "  Basecamp:   $BASECAMP_BIN"
 echo ""
 
 exec env \
-    NSSA_WALLET_HOME_DIR="${NSSA_WALLET_HOME_DIR:-/tmp/ww-wallet}" \
+    NSSA_WALLET_HOME_DIR="${NSSA_WALLET_HOME_DIR:-$ROOT/.scaffold/wallet}" \
     NSSA_SEQUENCER_URL="${NSSA_SEQUENCER_URL:-http://127.0.0.1:3040}" \
     WHISPER_WALL_PROGRAM_ID_HEX="$PROGRAM_ID_HEX" \
     WHISPER_WALL_BINARY_PATH="$PROGRAM_BIN" \

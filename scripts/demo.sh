@@ -5,16 +5,16 @@
 # Prereqs:
 #   - Sequencer running on localhost:3040
 #   - spel + wallet CLI on PATH (or point SPEL at the freshly-built binary)
-#   - NSSA_WALLET_HOME_DIR will be created if missing; safe to point at /tmp dir
+#   - NSSA_WALLET_HOME_DIR defaults to .scaffold/wallet (created by logos-scaffold setup)
 
 set -euo pipefail
 
-SPEL="${SPEL:-spel}"
-WALLET="${WALLET:-wallet}"
-export NSSA_WALLET_HOME_DIR="${NSSA_WALLET_HOME_DIR:-/tmp/ww-wallet}"
-
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
+
+SPEL="${SPEL:-spel}"
+WALLET="${WALLET:-wallet}"
+export NSSA_WALLET_HOME_DIR="${NSSA_WALLET_HOME_DIR:-$ROOT/.scaffold/wallet}"
 
 say() { printf "\n\033[1;36m▶ %s\033[0m\n" "$*"; }
 note() { printf "  \033[2m%s\033[0m\n" "$*"; }

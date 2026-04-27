@@ -1,7 +1,7 @@
 // Standalone test harness — loads WhisperWallPlugin directly without Basecamp.
 // Usage:
 //   QML_PATH=ui/qml ./whisper_wall_app
-//   NSSA_WALLET_HOME_DIR=/tmp/ww-wallet NSSA_SEQUENCER_URL=http://127.0.0.1:3040 \
+//   NSSA_WALLET_HOME_DIR=.scaffold/wallet NSSA_SEQUENCER_URL=http://127.0.0.1:3040 \
 //   WHISPER_WALL_PROGRAM_ID_HEX=<64-hex> QML_PATH=ui/qml ./whisper_wall_app
 
 #include "WhisperWallPlugin.h"

@@ -19,7 +19,7 @@ Today `spel_framework_core/src/lib.rs:20-21` only re-exports from `nssa_core`, n
 
 ## When we care about a proper test suite
 
-`methods/guest/src/bin/whisper_wall.rs` has no unit tests. The modern pattern (see `/home/vpavlin/devel/github.com/logos-co/spel/tests/e2e/fixture_program/src/lib.rs`) uses `#[cfg(test)]` handler calls directly — no zkVM, no proof generation. Worth adding:
+`methods/guest/src/bin/whisper_wall.rs` has no unit tests. The modern pattern (see [`tests/e2e/fixture_program/src/lib.rs`](https://github.com/logos-co/spel/blob/main/tests/e2e/fixture_program/src/lib.rs) in the spel repo) uses `#[cfg(test)]` handler calls directly — no zkVM, no proof generation. Worth adding:
 - `initialize_sets_admin`
 - `whisper_on_nonempty_wall_errors`
 - `overwrite_rejects_equal_or_lower_tip`
@@ -57,7 +57,7 @@ The original plan had `drain_jar` emit a `ChainedCall` to `auth-transfer` with t
 
 Instead, `drain_jar` does the balance move directly in its own post-state (the program owns the wall → it's allowed to decrement; increments to the recipient are always permitted). Simpler, correct, and avoids the cross-program ownership dance entirely.
 
-The PDA-as-sender + `PdaSeed` pattern remains the right shape when a PDA must pay a program it doesn't own — e.g. a vault managed by program A paying into a token program B. Out of scope for this demo, and would need an end-to-end runtime test of what the pda_seeds proof is actually checked against. The `/home/vpavlin/devel/github.com/logos-co/lez-multisig/multisig_program/src/execute.rs:115-155` path uses this pattern but the multisig PDA is the recipient in that ChainedCall flow, not the sender.
+The PDA-as-sender + `PdaSeed` pattern remains the right shape when a PDA must pay a program it doesn't own — e.g. a vault managed by program A paying into a token program B. Out of scope for this demo, and would need an end-to-end runtime test of what the pda_seeds proof is actually checked against. The lez-multisig `multisig_program/src/execute.rs` uses this pattern but the multisig PDA is the recipient in that ChainedCall flow, not the sender.
 
 ## Known scope that was cut
 
