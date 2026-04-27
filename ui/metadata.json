@@ -4,7 +4,7 @@
   "description": "Anonymous bidding wall — free whisper, paid overwrite, private TX support",
   "type": "ui",
   "category": "demo",
-  "main": "whisper_wall_plugin",
+  "main": "libwhisper_wall_plugin",
   "view": "qml/Main.qml",
   "nix": {
     "packages": {

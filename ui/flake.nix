@@ -8,9 +8,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     flake-utils.url = "github:numtide/flake-utils";
+    nix-bundle-lgx.url = "github:logos-co/nix-bundle-lgx";
   };
 
-  outputs = { self, nixpkgs, rust-overlay, flake-utils }:
+  outputs = { self, nixpkgs, rust-overlay, flake-utils, nix-bundle-lgx }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
@@ -129,11 +130,14 @@
           echo "Installed to $PLUGIN_DIR"
         '';
 
+        lgx = nix-bundle-lgx.bundlers.${system}.portable plugin;
+
       in {
         packages = {
           default = plugin;
           ffi     = ffi;
           install = installScript;
+          lgx     = lgx;
         };
 
         # Development shell with Qt6 + Rust on PATH for cmake iteration.

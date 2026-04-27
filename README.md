@@ -178,10 +178,13 @@ nix run ./ui#install
 ./scripts/launch-basecamp.sh
 ```
 
-The nix flake at `ui/flake.nix` builds three outputs:
+The nix flake at `ui/flake.nix` builds four outputs:
 - `nix build ./ui` — default: full Qt plugin package
 - `nix build ./ui#ffi` — Rust FFI cdylib only (faster iteration on the FFI layer)
+- `nix build ./ui#lgx` — portable `.lgx` package for distribution (self-contained, no nix required on target)
 - `nix run ./ui#install` — build + copy to `~/.local/share/Logos/LogosBasecampDev/plugins/whisper_wall/`
+
+The `.lgx` file can be loaded directly into any Basecamp instance — participants don't need nix or to build from source.
 
 The launch script auto-extracts the program ID from the local binary via `spel inspect`, so you don't need to copy-paste it after each `make build`. It also sets `QML_PATH` so QML edits take effect without recompiling the `.so`.
 
