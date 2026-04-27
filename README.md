@@ -81,6 +81,17 @@ CAROL=$(wallet account new public | grep -oP '(?<=Public/)\S+')
 lgs wallet topup "Public/$ALICE"
 lgs wallet topup "Public/$BOB"
 lgs wallet topup "Public/$CAROL"
+
+# Verify — should show balance > 0 for each
+wallet account get --account-id "Public/$ALICE"
+wallet account get --account-id "Public/$BOB"
+wallet account get --account-id "Public/$CAROL"
+```
+
+Expected output per account:
+```
+Account owned by authenticated transfer program
+{"balance":150,"program_owner":"...","data":"","nonce":1}
 ```
 
 ## Build
