@@ -147,7 +147,12 @@ void WhisperWallBackend::refreshState() {
         QMetaObject::invokeMethod(this, [this, result]() {
             QJsonObject obj = QJsonDocument::fromJson(result.toUtf8()).object();
             if (obj.value("success").toBool() && obj.contains("state")) {
+                m_lastError.clear();
+                emit lastErrorChanged();
                 applyStateJson(obj.value("state").toObject());
+            } else if (!obj.value("success").toBool()) {
+                m_lastError = "poll: " + obj.value("error").toString(result);
+                emit lastErrorChanged();
             }
         }, Qt::QueuedConnection);
     });
