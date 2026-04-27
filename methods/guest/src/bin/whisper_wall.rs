@@ -36,7 +36,7 @@ mod whisper_wall {
     /// Claim the wall PDA and mark the caller as admin.
     #[instruction]
     pub fn initialize(
-        #[account(init, pda = literal("wall"))]
+        #[account(init, pda = literal("wall_v2"))]
         mut state: AccountWithMetadata,
         #[account(signer)]
         admin: AccountWithMetadata,
@@ -60,7 +60,7 @@ mod whisper_wall {
     /// Once someone tips to overwrite, only paid overwrites can replace the message.
     #[instruction]
     pub fn whisper(
-        #[account(mut, pda = literal("wall"))]
+        #[account(mut, pda = literal("wall_v2"))]
         mut state: AccountWithMetadata,
         #[account(signer)]
         signer: AccountWithMetadata,
@@ -95,7 +95,7 @@ mod whisper_wall {
     /// credits the wall PDA by `tip` native tokens — atomic with the state update.
     #[instruction]
     pub fn overwrite(
-        #[account(mut, pda = literal("wall"))]
+        #[account(mut, pda = literal("wall_v2"))]
         mut state: AccountWithMetadata,
         #[account(signer)]
         signer: AccountWithMetadata,
@@ -149,7 +149,7 @@ mod whisper_wall {
     /// "only owner can DECREASE").
     #[instruction]
     pub fn drain_jar(
-        #[account(mut, pda = literal("wall"))]
+        #[account(mut, pda = literal("wall_v2"))]
         mut state: AccountWithMetadata,
         #[account(signer)]
         signer: AccountWithMetadata,
@@ -194,7 +194,7 @@ mod whisper_wall {
     /// data via `spel inspect <wall-pda> --type WhisperState`.
     #[instruction]
     pub fn reveal(
-        #[account(pda = literal("wall"))]
+        #[account(pda = literal("wall_v2"))]
         state: AccountWithMetadata,
     ) -> SpelResult {
         Ok(SpelOutput::execute(vec![state], vec![]))
