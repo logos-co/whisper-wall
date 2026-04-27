@@ -23,7 +23,7 @@ lgs wallet -- account new public
 ### spel
 
 ```bash
-cargo install --git https://github.com/logos-co/spel --manifest-path spel-cli/Cargo.toml
+cargo install --git https://github.com/logos-co/spel spel
 ```
 
 ### RISC Zero toolchain (for `make build`)
