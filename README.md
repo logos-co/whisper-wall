@@ -12,6 +12,50 @@ Called with ordinary `Public/` accounts it's a transparent bidding board. Called
 - **Direct balance manipulation from a program-owned PDA** (in `drain_jar`) — since the whisper program owns the wall PDA, it can simply decrement its balance in the post-state; anyone can increment the recipient. No ChainedCall needed. (The "PDA-as-sender via ChainedCall + PdaSeed" pattern is useful when the PDA must pay a program you don't own — not needed here; see `NOTES.md`.)
 - **Privacy cascade** — when the originating TX is private, the chained `auth-transfer` call inherits the wrapping automatically.
 
+## Local network
+
+WhisperWall runs against a local LEZ sequencer managed by **logos-scaffold**.
+
+```bash
+# 1. Pull the pinned LEZ snapshot and create the wallet
+logos-scaffold setup
+
+# 2. Start the sequencer (RPC on localhost:3040 by default)
+logos-scaffold localnet start
+```
+
+The scaffold creates a pre-funded deployer wallet at `.scaffold/wallet`. Set the env var so all subsequent `wallet` and `spel` commands find it:
+
+```bash
+export NSSA_WALLET_HOME_DIR="$PWD/.scaffold/wallet"
+```
+
+To stop the sequencer later: `logos-scaffold localnet stop`.
+
+### Funding participant accounts
+
+The scaffold's deployer account starts with tokens. Fund fresh test accounts from it:
+
+```bash
+ALICE=$(wallet account new public | grep -oP '(?<=Public/)\S+')
+BOB=$(wallet account new public   | grep -oP '(?<=Public/)\S+')
+CAROL=$(wallet account new public | grep -oP '(?<=Public/)\S+')
+
+wallet account fund --account-id "Public/$ALICE" --amount 10000
+wallet account fund --account-id "Public/$BOB"   --amount 10000
+wallet account fund --account-id "Public/$CAROL" --amount 10000
+```
+
+### Auth-transfer prerequisite for `overwrite`
+
+Any account that will call `overwrite` (which moves tokens via `auth-transfer`) must be registered with auth-transfer first:
+
+```bash
+wallet auth-transfer init --account-id "Public/$ALICE"
+wallet auth-transfer init --account-id "Public/$BOB"
+wallet auth-transfer init --account-id "Public/$CAROL"
+```
+
 ## Build
 
 ```bash
@@ -29,9 +73,7 @@ jq '{instrs: (.instructions|length), types: [.accounts[].name]}' whisper-wall-id
 ## Deploy
 
 ```bash
-export NSSA_WALLET_HOME_DIR=/tmp/ww-wallet  # or any fresh dir
-make setup                                   # creates a signer account
-make deploy                                  # pushes the ELF to the sequencer
+make deploy   # pushes the ELF to the sequencer (requires NSSA_WALLET_HOME_DIR)
 ```
 
 ## Instructions
@@ -58,29 +100,26 @@ pub struct WhisperState {
 
 ## Demo — public run
 
-```bash
-# Three signers
-wallet account new public   # ALICE_ID (admin)
-wallet account new public   # BOB_ID
-wallet account new public   # CAROL_ID
+Assumes `NSSA_WALLET_HOME_DIR` is set and accounts are funded + auth-transfer-init'd (see [Local network](#local-network) above).
 
-spel initialize --admin $ALICE_ID
+```bash
+spel initialize --admin $ALICE
 WALL=$(spel pda wall)
 spel inspect "$WALL" --type WhisperState
 # { "admin": "...", "latest_whisper": "", "last_tip": "0", "whisper_count": "0", "total_tips": "0" }
 
-spel whisper --signer $BOB_ID --msg "hello wall"
+spel whisper --signer $BOB --msg "hello wall"
 spel inspect "$WALL" --type WhisperState
 # latest_whisper == "hello wall", whisper_count == 1
 
-spel overwrite --signer $CAROL_ID --msg "LOUDER" --tip 100
-wallet account get "$WALL"            # balance is now 100  ← real tokens moved
+spel overwrite --signer $CAROL --msg "LOUDER" --tip 100
+wallet account get "$WALL"          # balance is now 100  ← real tokens moved
 spel inspect "$WALL" --type WhisperState
 # latest_whisper == "LOUDER", last_tip == 100, total_tips == 100
 
-spel drain_jar --signer $ALICE_ID --recipient $ALICE_ID
-wallet account get "$WALL"            # balance back to 0
-wallet account get "$ALICE_ID"         # alice's balance up by 100
+spel drain_jar --signer $ALICE --recipient $ALICE
+wallet account get "$WALL"          # balance back to 0
+wallet account get "Public/$ALICE"  # alice's balance up by 100
 ```
 
 ## Demo — private run
