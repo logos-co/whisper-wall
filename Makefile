@@ -54,7 +54,7 @@ cli: ## Run the IDL-driven CLI (ARGS="...")
 
 deploy: ## Deploy program to sequencer
 	@test -f "$(PROGRAM_BIN)" || (echo "ERROR: Binary not found. Run 'make build' first."; exit 1)
-	wallet deploy-program $(PROGRAM_BIN)
+	logos-scaffold wallet -- deploy-program $(PROGRAM_BIN)
 	@echo "✅ Program deployed"
 
 inspect: ## Show ProgramId for built binary
@@ -62,7 +62,7 @@ inspect: ## Show ProgramId for built binary
 
 setup: ## Create accounts needed for the program
 	@echo "Creating signer account..."
-	$(eval SIGNER_ID := $(shell wallet account new public 2>&1 | sed -n 's/.*Public\/\([A-Za-z0-9]*\).*/\1/p'))
+	$(eval SIGNER_ID := $(shell logos-scaffold wallet -- account new public 2>&1 | sed -n 's/.*Public\/\([A-Za-z0-9]*\).*/\1/p'))
 	@echo "Signer: $(SIGNER_ID)"
 	$(call save_var,SIGNER_ID,$(SIGNER_ID))
 	@echo ""
