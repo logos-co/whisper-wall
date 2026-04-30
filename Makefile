@@ -6,6 +6,9 @@
 
 
 SHELL := /bin/bash
+LGS ?= lgs
+SPEL ?= spel
+WALLET := $(LGS) wallet --
 STATE_FILE := .whisper_wall-state
 IDL_FILE := whisper-wall-idl.json
 PROGRAMS_DIR := methods/guest/target/riscv32im-risc0-zkvm-elf/docker
@@ -46,7 +49,7 @@ build: ## Build the guest binary
 	@ls -la $(PROGRAM_BIN) 2>/dev/null || true
 
 idl: ## Generate IDL JSON via spel CLI (workaround for SPEL issue #141)
-	spel generate-idl methods/guest/src/bin/whisper_wall.rs > $(IDL_FILE)
+	$(SPEL) generate-idl methods/guest/src/bin/whisper_wall.rs > $(IDL_FILE)
 	@echo "✅ IDL written to $(IDL_FILE) (includes #[account_type] registrations)"
 
 cli: ## Run the IDL-driven CLI (ARGS="...")
@@ -54,7 +57,7 @@ cli: ## Run the IDL-driven CLI (ARGS="...")
 
 deploy: ## Deploy program to sequencer
 	@test -f "$(PROGRAM_BIN)" || (echo "ERROR: Binary not found. Run 'make build' first."; exit 1)
-	wallet deploy-program $(PROGRAM_BIN)
+	$(WALLET) deploy-program $(PROGRAM_BIN)
 	@echo "✅ Program deployed"
 
 inspect: ## Show ProgramId for built binary
@@ -62,7 +65,7 @@ inspect: ## Show ProgramId for built binary
 
 setup: ## Create accounts needed for the program
 	@echo "Creating signer account..."
-	$(eval SIGNER_ID := $(shell wallet account new public 2>&1 | sed -n 's/.*Public\/\([A-Za-z0-9]*\).*/\1/p'))
+	$(eval SIGNER_ID := $(shell $(WALLET) account new public 2>&1 | sed -n 's/.*Public\/\([A-Za-z0-9]*\).*/\1/p'))
 	@echo "Signer: $(SIGNER_ID)"
 	$(call save_var,SIGNER_ID,$(SIGNER_ID))
 	@echo ""

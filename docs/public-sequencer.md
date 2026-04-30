@@ -36,11 +36,12 @@ cargo install --git https://github.com/logos-co/logos-scaffold
 
 ## 2. Start the sequencer
 
-Clone whisper-wall so scaffold picks up the pinned LEZ version from `scaffold.toml`:
+Clone whisper-wall and initialize scaffold metadata for the checkout:
 
 ```bash
 git clone https://github.com/logos-co/whisper-wall
 cd whisper-wall
+logos-scaffold init
 logos-scaffold setup        # builds sequencer + wallet (~5-10 min first time)
 logos-scaffold localnet start
 ```
@@ -143,7 +144,7 @@ export NSSA_SEQUENCER_URL="http://<VM_IP>:3040"
 export NSSA_WALLET_HOME_DIR="$HOME/.ww-wallet"
 
 # Create and fund their account:
-MYACCT=$(wallet account new public | grep -oP '(?<=Public/)\S+')
+MYACCT=$(wallet account new public | sed -n 's/.*Public\/\([A-Za-z0-9]*\).*/\1/p' | tail -1)
 wallet pinata claim --to "Public/$MYACCT"
 wallet account get --account-id "Public/$MYACCT"
 # → {"balance":150, …}

@@ -12,11 +12,9 @@ Called with ordinary `Public/` accounts it's a transparent bidding board. Called
 cargo install --git https://github.com/logos-co/logos-scaffold
 ```
 
-This installs `logos-scaffold` and its shorter alias `lgs`. The `wallet` binary is **not** a separate install — `logos-scaffold setup` builds it from the pinned LEZ source. Use `lgs wallet -- <wallet-subcommand>` anywhere this README shows a bare `wallet` command:
+This installs `logos-scaffold` and its shorter alias `lgs`. The `wallet` binary is **not** a separate install — `logos-scaffold setup` builds it from the pinned LEZ source. Use `lgs wallet -- <wallet-subcommand>` for wallet commands in this project:
 
 ```bash
-# these are equivalent:
-wallet account new public
 lgs wallet -- account new public
 ```
 
@@ -54,14 +52,18 @@ Required by `cargo risczero build` for hermetic guest compilation.
 WhisperWall runs against a local LEZ sequencer managed by **logos-scaffold**.
 
 ```bash
-# 1. Pull the pinned LEZ snapshot and create the wallet
+# 1. Create scaffold.toml for this checkout. This is idempotent only before
+# scaffold.toml exists; skip it if you have already initialized this clone.
+logos-scaffold init
+
+# 2. Pull the pinned LEZ snapshot and create the wallet
 logos-scaffold setup
 
-# 2. Start the sequencer (RPC on localhost:3040 by default)
+# 3. Start the sequencer (RPC on localhost:3040 by default)
 logos-scaffold localnet start
 ```
 
-The scaffold creates a pre-funded deployer wallet at `.scaffold/wallet`. Set the env var so all subsequent `wallet` and `spel` commands find it:
+The scaffold creates a pre-funded deployer wallet at `.scaffold/wallet`. Set the env var so subsequent `spel` commands find it:
 
 ```bash
 export NSSA_WALLET_HOME_DIR="$PWD/.scaffold/wallet"
@@ -74,18 +76,18 @@ To stop the sequencer later: `logos-scaffold localnet stop`.
 Create accounts and top them up with the pinata faucet. `lgs wallet topup` handles both `auth-transfer init` and the faucet claim in one step:
 
 ```bash
-ALICE=$(wallet account new public | grep -oP '(?<=Public/)\S+')
-BOB=$(wallet account new public   | grep -oP '(?<=Public/)\S+')
-CAROL=$(wallet account new public | grep -oP '(?<=Public/)\S+')
+ALICE=$(lgs wallet -- account new public | sed -n 's/.*Public\/\([A-Za-z0-9]*\).*/\1/p' | tail -1)
+BOB=$(lgs wallet -- account new public   | sed -n 's/.*Public\/\([A-Za-z0-9]*\).*/\1/p' | tail -1)
+CAROL=$(lgs wallet -- account new public | sed -n 's/.*Public\/\([A-Za-z0-9]*\).*/\1/p' | tail -1)
 
 lgs wallet topup "Public/$ALICE"
 lgs wallet topup "Public/$BOB"
 lgs wallet topup "Public/$CAROL"
 
 # Verify — should show balance > 0 for each
-wallet account get --account-id "Public/$ALICE"
-wallet account get --account-id "Public/$BOB"
-wallet account get --account-id "Public/$CAROL"
+lgs wallet -- account get --account-id "Public/$ALICE"
+lgs wallet -- account get --account-id "Public/$BOB"
+lgs wallet -- account get --account-id "Public/$CAROL"
 ```
 
 Expected output per account:
@@ -111,7 +113,7 @@ jq '{instrs: (.instructions|length), types: [.accounts[].name]}' whisper-wall-id
 ## Deploy
 
 ```bash
-make deploy   # pushes the ELF to the sequencer (requires NSSA_WALLET_HOME_DIR)
+make deploy   # pushes the ELF to the running scaffold sequencer
 ```
 
 ## Instructions
@@ -151,13 +153,13 @@ spel inspect "$WALL" --type WhisperState
 # latest_whisper == "hello wall", whisper_count == 1
 
 spel overwrite --signer $CAROL --msg "LOUDER" --tip 100
-wallet account get "$WALL"          # balance is now 100  ← real tokens moved
+lgs wallet -- account get "$WALL"   # balance is now 100  ← real tokens moved
 spel inspect "$WALL" --type WhisperState
 # latest_whisper == "LOUDER", last_tip == 100, total_tips == 100
 
 spel drain_jar --signer $ALICE --recipient $ALICE
-wallet account get "$WALL"          # balance back to 0
-wallet account get "Public/$ALICE"  # alice's balance up by 100
+lgs wallet -- account get "$WALL"          # balance back to 0
+lgs wallet -- account get "Public/$ALICE"  # alice's balance up by 100
 ```
 
 ## Demo — private run
@@ -165,7 +167,7 @@ wallet account get "Public/$ALICE"  # alice's balance up by 100
 Private TX proof generation needs every chained-call target declared as a build dependency via `--bin-<name> <path>`. For `overwrite` that means the `auth-transfer` binary, which ships inside the `nssa` crate's build artifacts:
 
 ```bash
-wallet account sync-private   # run periodically — silent failure otherwise if you skip
+lgs wallet -- account sync-private   # run periodically — silent failure otherwise if you skip
 
 AUTH_BIN=$(find ~/.cargo/git/checkouts/logos-execution-zone-* \
   -path "*artifacts/program_methods/authenticated_transfer.bin" | head -1)
@@ -180,8 +182,8 @@ spel --bin-auth-transfer "$AUTH_BIN" -- \
 spel inspect "$WALL" --type WhisperState
 # { "latest_whisper": "ghost", "last_tip": "600", … }
 
-wallet account sync-private   # refresh the private-account view
-wallet account get --account-id "$PRIV"
+lgs wallet -- account sync-private   # refresh the private-account view
+lgs wallet -- account get --account-id "$PRIV"
 # balance went from 10000 → 9400 — real on-chain debit via the private path
 ```
 
