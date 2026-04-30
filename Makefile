@@ -45,7 +45,7 @@ build: ## Build the guest binary
 	@echo "✅ Guest binary built: $(PROGRAM_BIN)"
 	@ls -la $(PROGRAM_BIN) 2>/dev/null || true
 
-idl: ## Generate IDL JSON via spel CLI (workaround for SPEL issue #141)
+idl: ## Generate IDL JSON from guest source
 	spel generate-idl methods/guest/src/bin/whisper_wall.rs > $(IDL_FILE)
 	@echo "✅ IDL written to $(IDL_FILE) (includes #[account_type] registrations)"
 

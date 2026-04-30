@@ -199,10 +199,8 @@ Without `--bin-auth-transfer`, the private path panics at `wallet/src/lib.rs:402
 
 ## Caveats
 
-1. ~~**[SPEL #140](https://github.com/logos-co/spel/issues/140)** — scaffold default pinned a stale `nssa_core` rev.~~ Fixed in spel main (`--spel-tag v0.2.0-rc.3`). `ruint = "=1.17.0"` is now pinned directly in `methods/guest/Cargo.toml`.
-2. ~~**[SPEL #141](https://github.com/logos-co/spel/issues/141)** — `generate_idl!` proc macro didn't collect `#[account_type]` markers.~~ Fixed in spel main (PR #146). The `Makefile` `idl` target continues to use `spel generate-idl` (both paths now work).
-4. **Private TX needs the program binary, not `--program <HEX>`**. `spel-cli/src/tx.rs` silently bails otherwise. With a `spel.toml` (which `spel init` scaffolds) this is automatic — the `binary` field supplies the path.
-5. **`AUTHENTICATED_TRANSFER_ID` is hardcoded** in the guest file for LEZ `v0.2.0-rc1`. If you bump LEZ, regenerate from the new `nssa` build output. See `NOTES.md`.
+1. **Private TX needs the program binary, not `--program <HEX>`**. `spel-cli/src/tx.rs` silently bails otherwise. With a `spel.toml` (which `spel init` scaffolds) this is automatic — the `binary` field supplies the path.
+2. **`AUTHENTICATED_TRANSFER_ID` is hardcoded** in the guest file for LEZ `v0.2.0-rc1`. If you bump LEZ, regenerate from the new `nssa` build output. See `NOTES.md`.
 
 ## Basecamp UI plugin
 

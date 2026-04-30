@@ -1,14 +1,6 @@
 # Follow-ups
 
-Items to revisit once upstream fixes land. Grouped by trigger.
-
-## ~~SPEL issue #140~~ — resolved (spel PR #151)
-
-`ruint = "=1.17.0"` is now pinned directly in `methods/guest/Cargo.toml`. The `cargo update -p ruint` workaround step has been removed from `scripts/demo.sh` and the README. New projects scaffolded with `spel init` also get the pin automatically.
-
-## ~~SPEL issue #141~~ — resolved (spel PR #146)
-
-The `generate_idl!` proc macro now collects `#[account_type]` markers. Both the proc-macro path and `spel generate-idl` CLI now emit `accounts[]` correctly. The `Makefile` `idl` target keeps the CLI call (still valid, no rebuild needed), but the proc-macro path also works now.
+Items to revisit once upstream work lands.
 
 ## When SPEL re-exports `nssa::program_methods::AUTHENTICATED_TRANSFER_ID`
 
